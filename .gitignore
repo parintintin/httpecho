@@ -20,8 +20,9 @@ _cgo_export.*
 
 _testmain.go
 
-runner.conf
-
 *.exe
 *.test
 *.prof
+
+# Addons
+runner.conf
