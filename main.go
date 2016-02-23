@@ -4,6 +4,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -12,9 +13,12 @@ import (
 
 // httpecho is a web server which responds with the requested HTTP status code.
 func main() {
+	clPort := flag.Int("port", 80, "Port to bind server to")
+	flag.Parse()
+
 	finalHandler := http.HandlerFunc(handler)
 	http.Handle("/", addDefaultHeaders(finalHandler))
-	log.Fatal(http.ListenAndServe(":80", nil))
+	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(*clPort), nil))
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
