@@ -9,26 +9,30 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 // httpecho is a web server which responds with the requested HTTP status code.
 func main() {
-	clPort := flag.Int("port", 80, "Port to bind server to")
+	p := flag.Int("port", 80, "Port to bind server to")
 	flag.Parse()
 
 	finalHandler := http.HandlerFunc(handler)
 	http.Handle("/", addDefaultHeaders(finalHandler))
-	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(*clPort), nil))
+	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(*p), nil))
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	s, err := strconv.Atoi(r.URL.Path[1:])
-	if err != nil {
-		w.WriteHeader(400)
-		fmt.Fprintf(w, "No status code")
-	} else {
+	if err == nil {
+		if d, err := strconv.Atoi(r.URL.Query().Get("d")); err == nil {
+			time.Sleep(time.Duration(d) * time.Second)
+		}
 		w.WriteHeader(s)
 		fmt.Fprintf(w, "Status Code: %d %s", s, http.StatusText(s))
+	} else {
+		w.WriteHeader(400)
+		fmt.Fprintf(w, "No status code")
 	}
 }
 
