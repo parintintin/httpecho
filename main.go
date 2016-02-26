@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -23,11 +24,13 @@ func main() {
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	s, err := strconv.Atoi(r.URL.Path[1:])
+	p := splitURLPath(r.URL.Path)
+	s, err := strconv.Atoi(p[0])
 	if err == nil {
 		if d, err := strconv.Atoi(r.URL.Query().Get("d")); err == nil {
 			time.Sleep(time.Duration(d) * time.Second)
 		}
+
 		w.WriteHeader(s)
 		fmt.Fprintf(w, "Status Code: %d %s", s, http.StatusText(s))
 	} else {
@@ -44,4 +47,10 @@ func addDefaultHeaders(next http.Handler) http.Handler {
 		w.Header().Add("Access-Control-Allow-Credentials", "true")
 		next.ServeHTTP(w, r)
 	})
+}
+
+func splitURLPath(path string) []string {
+	p := strings.TrimPrefix(path, "/")
+	p = strings.TrimSuffix(p, "/")
+	return strings.Split(p, "/")
 }
