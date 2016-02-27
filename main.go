@@ -21,7 +21,7 @@ var (
 
 // httpecho is a web server which responds with the requested HTTP status code.
 func main() {
-	flag.StringVar(&host, "host", "", "Host for HTTP server")
+	flag.StringVar(&host, "host", "localhost", "Host for HTTP server")
 	flag.IntVar(&port, "port", 80, "Port to bind HTTP server to")
 	flag.Parse()
 	address = fmt.Sprintf("%s:%d", host, port)
@@ -39,6 +39,12 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			time.Sleep(time.Duration(d) * time.Second)
 		}
 
+		if len(p) > 1 {
+			if s == http.StatusMovedPermanently || s == http.StatusTemporaryRedirect {
+				w.Header().Add("Location", "http://"+address+"/"+p[1])
+				http.Redirect(w, r, "http://"+address+"/"+p[1], s)
+			}
+		}
 		w.WriteHeader(s)
 		fmt.Fprintf(w, "Status Code: %d %s", s, http.StatusText(s))
 	} else {
