@@ -13,14 +13,22 @@ import (
 	"time"
 )
 
+var (
+	host    string
+	port    int
+	address string
+)
+
 // httpecho is a web server which responds with the requested HTTP status code.
 func main() {
-	p := flag.Int("port", 80, "Port to bind server to")
+	flag.StringVar(&host, "host", "", "Host for HTTP server")
+	flag.IntVar(&port, "port", 80, "Port to bind HTTP server to")
 	flag.Parse()
+	address = fmt.Sprintf("%s:%d", host, port)
 
 	finalHandler := http.HandlerFunc(handler)
 	http.Handle("/", addDefaultHeaders(finalHandler))
-	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(*p), nil))
+	log.Fatal(http.ListenAndServe(address, nil))
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
