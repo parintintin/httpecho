@@ -1,13 +1,59 @@
 # httpecho
-httpecho is a web server which responds with the requested HTTP status code.
+httpecho is a HTTP server which responds with the requested HTTP status code.
 
 ## Usage
-    httpecho [options] 
-    options:
-    -host="localhost": Host for HTTP server
-    -port=80: Port to bind HTTP server to
+```
+httpecho [options] 
+options:
+-host="localhost": Host for HTTP server
+-port=80: Port to bind HTTP server to
+```
 
-## Supported HTTP status codes (RFC 2616)
+## Client usage
+
+### Single status code
+
+URL path: */{[StatusCode](#status-codes)}*
+
+**Request:**
+```
+curl --location http://localhost/200
+```
+**Response:**
+````
+< HTTP/1.1 200 OK
+< Access-Control-Allow-Credentials: true
+< Access-Control-Allow-Headers: Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token
+< Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE
+< Access-Control-Allow-Origin: *
+...
+< Content-Type: text/plain; charset=utf-8
+```
+### Redirects
+Redirect is supported for HTTP status codes 301 and 307. Additionally a second status code has to be specified.
+
+URL path: */{301|307}/{[StatusCode](#status-codes)}*
+
+**Request:**
+```
+curl --location http://localhost/301/200
+```
+**Response (redirect to /200):**
+````
+< HTTP/1.1 301 Moved Permanently
+...
+< Location: http://localhost/200
+```
+### Parameters
+#### Delay
+URL parameter `d` specifies a delay of the response in **seconds**.
+
+Example for a 10 second delay:
+```
+url -s -w "%{time_total}s\n" -o /dev/null http://localhost/408?d=10
+10.012s
+```
+## Supported HTTP status codes (RFC 2616)<a id="status-codes"></a>
 * 100: Continue
 * 101: Switching Protocols
 * 200: OK
